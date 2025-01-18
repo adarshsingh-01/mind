@@ -98,7 +98,8 @@ function ShapeColorMatchingTask() {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/cognitive-metrics",
+        `https://mind-c64g.onrender.com/api/cognitive-metrics`,
+
         { userDetails },
         { headers: { Authorization: `Bearer ${token}` } }
       );

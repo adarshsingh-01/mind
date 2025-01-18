@@ -79,7 +79,8 @@ const TwoBackTest = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/cognitive-metrics",
+               `https://mind-c64g.onrender.com/api/cognitive-metrics`,
+
         {
           userDetails: {
             sex: user.sex,

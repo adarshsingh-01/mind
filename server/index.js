@@ -12,7 +12,7 @@ const app = express();
 app.use(express.json());
 
 const corsOptions = {
-  origin: ["http://localhost:3000"],
+  origin: ["http://localhost:3000","https://mind-beige.vercel.app"],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 };
