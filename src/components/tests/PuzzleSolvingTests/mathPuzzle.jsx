@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+import { setUser } from '../../../Redux/userActions';
 
 // Helper function to generate random arithmetic expressions
 const generateExpression = () => {
@@ -36,6 +39,10 @@ const MathPuzzle = () => {
     const [gameCompleted, setGameCompleted] = useState(false);
     const [accuracy, setAccuracy] = useState(0);
 
+    const token = useSelector(state => state.user.token);
+    const userCategory = useSelector(state => state.user.category);
+    const dispatch = useDispatch();
+
     // Generate 6 random questions
     useEffect(() => {
         let generatedQuestions = [];
@@ -71,6 +78,7 @@ const MathPuzzle = () => {
         } else {
             calculateAccuracy();
             setGameCompleted(true);
+            sendPerformanceToBackend();
         }
     };
 
@@ -97,6 +105,30 @@ const MathPuzzle = () => {
             generatedQuestions.push({ question: expr, correctAnswer: answer });
         }
         setQuestions(generatedQuestions);
+    };
+
+    const sendPerformanceToBackend = async () => {
+        const userDetails = {
+            userScore: accuracy,
+            correctAnswers,
+            incorrectAnswers,
+            notAttempted,
+            userCategory: userCategory,
+        };
+
+        try {
+            const response = await axios.post(
+                `https://mind-c64g.onrender.com/api/cognitive-metrics`,
+                { userDetails },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            if (response.status === 200) {
+                dispatch(setUser(response.data.updatedUser));
+            }
+        } catch (error) {
+            console.error('Error sending performance data to backend:', error);
+        }
     };
 
     return (

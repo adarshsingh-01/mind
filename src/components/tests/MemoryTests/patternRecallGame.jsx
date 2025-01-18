@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux'; // Import redux hooks
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+import { setUser } from '../../../Redux/userActions';
 
 const PatternRecallGame = () => {
   const [tiles, setTiles] = useState(Array(9).fill(false));
@@ -9,10 +11,8 @@ const PatternRecallGame = () => {
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
 
-  // Fetch token, userCategory from redux store or local storage
-  const token = useSelector(state => state.auth.token); // Assuming token is stored in auth slice
-  const userCategory = useSelector(state => state.user.category); // Assuming user category is stored in user slice
-
+  const token = useSelector(state => state.user.token);
+  const userCategory = useSelector(state => state.user.category);
   const dispatch = useDispatch();
 
   const generatePattern = () => {
@@ -50,7 +50,7 @@ const PatternRecallGame = () => {
 
     if (newPlayerPattern[newPlayerPattern.length - 1] !== pattern[newPlayerPattern.length - 1]) {
       setGameOver(true);
-      // Dispatch action for game over, save score to redux store
+      sendPerformanceToBackend(score);
       dispatch({ type: 'GAME_OVER', payload: { score } });
       return;
     }
@@ -75,11 +75,32 @@ const PatternRecallGame = () => {
     }
   }, [pattern]);
 
+  const sendPerformanceToBackend = async (score) => {
+    const userDetails = {
+      userScore: score,
+      userCategory: userCategory,
+    };
+
+    try {
+      const response = await axios.post(
+        `https://mind-c64g.onrender.com/api/cognitive-metrics`,
+        { userDetails },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.status === 200) {
+        dispatch(setUser(response.data.user));
+      }
+    } catch (error) {
+      console.error('Error sending performance data to backend:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-700 text-white font-sans">
       <h1 className="text-4xl font-bold mb-8">Pattern Recall Game</h1>
       <p className="text-xl font-medium mb-6">Score: <span className="text-yellow-400">{score}</span></p>
-      <p className="text-lg font-medium mb-6">Category: <span className="text-yellow-400">{userCategory}</span></p> {/* Display user category */}
+      <p className="text-lg font-medium mb-6">Category: <span className="text-yellow-400">{userCategory}</span></p>
       <div className="grid grid-cols-3 gap-4">
         {tiles.map((highlighted, index) => (
           <div

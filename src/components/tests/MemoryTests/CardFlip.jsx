@@ -102,7 +102,7 @@ export default function MemoryCardFlipGame() {
                 setUserZScore(response.data.userZScore);
 
                 // Dispatch action to update user info after performance submission
-                dispatch(setUser(response.data.updatedUser)); // Assuming the backend returns the updated user object
+                dispatch(setUser(response.data.user)); // Assuming the backend returns the updated user object
             }
         } catch (error) {
             console.error("Error sending performance to backend:", error);
