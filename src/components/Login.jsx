@@ -23,6 +23,8 @@ const Login = () => {
       });
       toast.success("Login successful!", { id: toastId });
       console.log("Login successful:", response.data);
+      console.log("User:", response.data.user);
+      console.log("Token:", response.data.token);
       dispatch(setUser(response.data.user, response.data.token));
       setEmail("");
       setPassword("");

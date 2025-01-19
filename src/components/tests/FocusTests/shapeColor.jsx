@@ -106,8 +106,7 @@ function ShapeColorMatchingTask() {
 
       if (response.status === 200) {
         setMetrics(response.data.metrics); // Store metrics from backend
-        dispatch(setUser(response.data.user));
-        console.log(response.data);
+        dispatch(setUser(response.data.user,token));
 
         setUserZScore(response.data.userZScore); // Store user Z-Score
       }

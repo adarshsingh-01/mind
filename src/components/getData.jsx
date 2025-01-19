@@ -1,7 +1,7 @@
 import Papa from 'papaparse';
 import csvData from '../assets/gamerecommendations.csv';
 
-export const getGameRecommendations = (sex, age, pscore, category) => {
+export const getGameRecommendations = (sex, age, categories) => {
   const ageRange = getAgeRange(age);
   let recommendations = [];
 
@@ -10,14 +10,7 @@ export const getGameRecommendations = (sex, age, pscore, category) => {
     download: true,
     complete: (results) => {
       recommendations = results.data.map(row => {
-        // Check if 'gameIds' exists before attempting to use replace
-        let gameIds = row.gameIds;
-        if (gameIds) {
-          gameIds = gameIds.replace(/"/g, '').split(',');
-        } else {
-          gameIds = []; // Fallback if gameIds is undefined or empty
-        }
-
+        let gameIds = row.gameIds ? row.gameIds.replace(/"/g, '').split(',') : [];
         return {
           ageGroup: row.ageGroup,
           gender: row.gender,
@@ -29,12 +22,20 @@ export const getGameRecommendations = (sex, age, pscore, category) => {
     }
   });
 
-  return recommendations.filter(rec => 
-    rec.gender === sex &&
-    rec.ageGroup === ageRange &&
-    rec.cumulativeScore <= pscore &&
-    rec.category === category
-  ).map(rec => rec.gameIds).flat();
+  let allGameIds = [];
+
+  categories.forEach(cat => {
+    const filteredRecommendations = recommendations.filter(rec => 
+      rec.gender === sex &&
+      rec.ageGroup === ageRange &&
+      rec.cumulativeScore <= cat.pscore &&
+      rec.category === cat.type
+    ).map(rec => rec.gameIds).flat();
+
+    allGameIds = [...allGameIds, ...filteredRecommendations];
+  });
+
+  return allGameIds;
 };
 
 const getAgeRange = (age) => {

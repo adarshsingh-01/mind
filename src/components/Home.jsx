@@ -1,7 +1,6 @@
 import React from "react";
 import Card from "./Card";
 import ImageCard from "./ImageCard";
-import bulb from "../assets/bulb.svg";
 import focus from "../assets/focusimg.png";
 import memory from "../assets/memory.jpg";
 import conc from "../assets/conc.jpg";
@@ -10,6 +9,7 @@ import focuslogo from "../assets/focuslogo.svg";
 import attention from "../assets/attention.svg";
 import { useSelector } from "react-redux";
 import FirstHome from "./FirstHome";
+
 const Home = () => {
   const user = useSelector((state) => state.user.user);
   const cnt = user?.Category?.reduce(
@@ -70,20 +70,17 @@ const Home = () => {
                 title="DHA (omega-3 fatty acid)"
                 description="Supports brain development and memory."
                 logo={focuslogo}
-                link="/some-path"
               />
               <Card
                 category="Memory"
                 title="8 to 10 hours of sleep"
                 description="Consolidate learning and memory."
                 logo={memorylogo}
-                link="/some-path"
               />
               <Card
                 category="Attention"
                 title="Physical Exercise"
                 description="Enhance hippocampal function."
-                link="/some-path"
               />
             </div>
           </section>

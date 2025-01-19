@@ -25,12 +25,13 @@ export default function MultiWordTypingGame() {
     const [overallAccuracy, setOverallAccuracy] = useState(0)
     const [totalReactionTime, setTotalReactionTime] = useState(0)
     const [error, setError] = useState('')
+    const [metrics, setMetrics] = useState(null)
+    const [userZScore, setUserZScore] = useState(null)
 
     const inputRef = useRef(null)
     const startTimeRef = useRef(0)
 
     const token = useSelector((state) => state.user.token)
-    const userCategory = useSelector((state) => state.user.userCategory) // assuming userCategory is in the Redux state
     const dispatch = useDispatch()
 
     const generateWords = () => {
@@ -55,7 +56,7 @@ export default function MultiWordTypingGame() {
         setUserInput(e.target.value)
         setError('')
     }
-
+const user=useSelector((state)=>state.user.user)
     const handleSubmit = async () => {
         const userWords = userInput.trim().split(' ')
         if (userWords.length !== WORD_COUNT) {
@@ -102,22 +103,26 @@ export default function MultiWordTypingGame() {
 
     const sendPerformanceToBackend = async (accuracy, reactionTime) => {
         const userDetails = {
-            userScore: accuracy,
             reactionTime,
-            userCategory: userCategory, // Ensure to send the user's category
+            userCategory: 'memory', 
+            userScore: accuracy,
+            gameId: 6,
+            sex: user.sex,
+            age: user.age,
         }
 
         try {
             const response = await axios.post(
-            `https://mind-c64g.onrender.com/api/cognitive-metrics`,
-
+                `https://mind-c64g.onrender.com/api/cognitive-metrics`,
                 { userDetails },
                 { headers: { Authorization: `Bearer ${token}` } }
             )
 
             if (response.status === 200) {
                 // Assuming backend returns updated user data
-                dispatch(setUser(response.data.updatedUser))
+                setMetrics(response.data.metrics)
+                setUserZScore(response.data.userZScore)
+                dispatch(setUser(response.data.user,token))
             }
         } catch (error) {
             console.error('Error sending performance data to backend:', error)
@@ -193,6 +198,14 @@ export default function MultiWordTypingGame() {
                                     <span>Total Reaction Time:</span>
                                     <span>{totalReactionTime.toFixed(2)}s</span>
                                 </div>
+                                {metrics && (
+                                    <div className="mt-6 bg-gray-100 p-4 rounded shadow">
+                                        <h2 className="text-lg font-semibold mb-2">Backend Metrics</h2>
+                                        <p>Mean Accuracy: {metrics.meanAccuracy}</p>
+                                        <p>Standard Deviation (Accuracy): {metrics.avgZScoreAccuracy}</p>
+                                        <p>User Z-Score: {userZScore}</p>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

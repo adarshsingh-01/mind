@@ -10,9 +10,11 @@ const PatternRecallGame = () => {
   const [isShowingPattern, setIsShowingPattern] = useState(false);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
+  const [metrics, setMetrics] = useState(null);
+  const [userZScore, setUserZScore] = useState(null);
 
   const token = useSelector(state => state.user.token);
-  const userCategory = useSelector(state => state.user.category);
+  const user = useSelector(state => state.user.user);
   const dispatch = useDispatch();
 
   const generatePattern = () => {
@@ -78,7 +80,10 @@ const PatternRecallGame = () => {
   const sendPerformanceToBackend = async (score) => {
     const userDetails = {
       userScore: score,
-      userCategory: userCategory,
+      userCategory: 'memory', 
+      gameId: 7,
+      sex: user.sex,
+      age: user.age,
     };
 
     try {
@@ -89,7 +94,9 @@ const PatternRecallGame = () => {
       );
 
       if (response.status === 200) {
-        dispatch(setUser(response.data.user));
+        setMetrics(response.data.metrics);
+        setUserZScore(response.data.userZScore);
+        dispatch(setUser(response.data.user,token));
       }
     } catch (error) {
       console.error('Error sending performance data to backend:', error);
@@ -100,7 +107,6 @@ const PatternRecallGame = () => {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-700 text-white font-sans">
       <h1 className="text-4xl font-bold mb-8">Pattern Recall Game</h1>
       <p className="text-xl font-medium mb-6">Score: <span className="text-yellow-400">{score}</span></p>
-      <p className="text-lg font-medium mb-6">Category: <span className="text-yellow-400">{userCategory}</span></p>
       <div className="grid grid-cols-3 gap-4">
         {tiles.map((highlighted, index) => (
           <div
@@ -130,6 +136,14 @@ const PatternRecallGame = () => {
         >
           Start Game
         </button>
+      )}
+      {metrics && (
+        <div className="mt-6 bg-gray-100 p-4 rounded shadow text-black">
+          <h2 className="text-lg font-semibold mb-2">Backend Metrics</h2>
+          <p>Mean Accuracy: {metrics.meanAccuracy}</p>
+          <p>Standard Deviation (Accuracy): {metrics.avgZScoreAccuracy}</p>
+          <p>User Z-Score: {userZScore}</p>
+        </div>
       )}
     </div>
   );

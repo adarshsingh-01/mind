@@ -17,7 +17,7 @@ const TwoBackTest = () => {
   const [loading, setLoading] = useState(false);
   const user = useSelector((state) => state.user.user);
   const token = useSelector((state) => state.user.token);
-  const dispatch=useDispatch()
+  const dispatch = useDispatch()
 
   const sequenceLength = 10;
 
@@ -79,7 +79,7 @@ const TwoBackTest = () => {
 
     try {
       const response = await axios.post(
-               `https://mind-c64g.onrender.com/api/cognitive-metrics`,
+        `https://mind-c64g.onrender.com/api/cognitive-metrics`,
 
         {
           userDetails: {
@@ -87,14 +87,14 @@ const TwoBackTest = () => {
             age: user.age,
             userScore,
             gameId: 2,
-      userCategory : 'memory'
+            userCategory: 'memory'
 
           },
-          
+
         },
-        {    headers: { Authorization: `Bearer ${token}` },}
+        { headers: { Authorization: `Bearer ${token}` }, }
       );
-dispatch(setUser(response.data.user))
+      dispatch(setUser(response.data.user,token))
 
       setZScore(response.data.userZScore);
       setMetrics(response.data.metrics);

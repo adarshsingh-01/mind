@@ -78,7 +78,6 @@ const WhackAMoleTest = () => {
     };
 
     try {
-      console.log(userDetails);
       const response = await axios.post(
         `https://mind-c64g.onrender.com/api/cognitive-metrics`,
         { userDetails },
@@ -88,7 +87,7 @@ const WhackAMoleTest = () => {
       // Check if the response is successful
       if (response.status === 200) {
         const data = response.data;
-        dispatch(setUser(response.data.user));
+        dispatch(setUser(response.data.user,token));
         setMetrics(data.metrics); // Store the backend metrics
         setUserZScore(data.userZScore); // Store the user's Z-Score
       } else {

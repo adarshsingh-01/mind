@@ -9,7 +9,8 @@ const setCookie = (name, value, days) => {
 
 const getCookie = (name) => {
   const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
-  return match ? decodeURIComponent(match[2]) : null;
+  const value = match ? decodeURIComponent(match[2]) : null;
+  return value;
 };
 
 let initialState = {
@@ -25,7 +26,6 @@ if (cookieValue) {
     const parsedUser = JSON.parse(cookieValue);
     initialState.user = parsedUser || null;
   } catch (error) {
-    // console.error("Failed to parse user from cookie:", error);
   }
 }
 
@@ -38,7 +38,7 @@ const userReducer = (state = initialState, action) => {
     case SET_USER:
       const { user, token } = action.payload;
       setCookie("mindmeldUser", JSON.stringify(user), 3650);
-      setCookie("mindmeldToken", token, 3650);
+      if(token) setCookie("mindmeldToken", token, 3650);
       return { ...state, user, token };
     case CLEAR_USER:
       setCookie("mindmeldUser", "", -1);

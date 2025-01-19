@@ -94,7 +94,7 @@ const StroopTest = () => {
 
       if (response.status === 200) {
         setMetrics(response.data.metrics);
-        dispatch(setUser(response.data.user));
+        dispatch(setUser(response.data.user,token));
 
         setUserZScore(response.data.userZScore);
       }

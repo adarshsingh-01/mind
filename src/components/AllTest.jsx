@@ -29,18 +29,33 @@ const AllTest = () => {
         }
     };
 
+    const handlePreviousGame = () => {
+        if (currentGame > 0) {
+            setCurrentGame(currentGame - 1);
+        }
+    };
+
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
             <div className="w-full max-w-2xl bg-white shadow-md rounded-lg p-6">
                 {games[currentGame]}
             </div>
-            <button
-                onClick={handleNextGame}
-                disabled={currentGame >= games.length - 1}
-                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 disabled:bg-gray-400"
-            >
-                Next Game
-            </button>
+            <div className="mt-4 flex space-x-4">
+                <button
+                    onClick={handlePreviousGame}
+                    disabled={currentGame <= 0}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 disabled:bg-gray-400"
+                >
+                    Previous Game
+                </button>
+                <button
+                    onClick={handleNextGame}
+                    disabled={currentGame >= games.length - 1}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 disabled:bg-gray-400"
+                >
+                    Next Game
+                </button>
+            </div>
         </div>
     );
 };

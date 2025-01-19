@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+import { setUser } from '../../../Redux/userActions';
 import { Toaster, toast } from 'react-hot-toast';
 
 const TowerOfHanoi = () => {
@@ -12,6 +15,12 @@ const TowerOfHanoi = () => {
     const [accuracy, setAccuracy] = useState(null);
     const [timer, setTimer] = useState(120); // 2 minutes in seconds
     const [isTimerRunning, setIsTimerRunning] = useState(false);
+    const [metrics, setMetrics] = useState(null);
+    const [userZScore, setUserZScore] = useState(null);
+
+    const token = useSelector(state => state.user.token);
+    const user = useSelector(state => state.user.user);
+    const dispatch = useDispatch();
 
     // Initialize the towers with disks
     const initializeTowers = () => {
@@ -66,9 +75,7 @@ const TowerOfHanoi = () => {
         const optimalMoves = Math.pow(2, numDisks) - 1; // Minimum moves required
         const totalMoves = moves.length;
 
-        if (towers[2].length !== numDisks) {
-            return 0;
-        }
+      
 
         const accuracyPercentage = (optimalMoves / totalMoves) * 100;
         return Math.min(accuracyPercentage, 100).toFixed(2); // Cap accuracy at 100%
@@ -82,7 +89,7 @@ const TowerOfHanoi = () => {
         const optimalMoves = Math.pow(2, numDisks) - 1;
         const totalMoves = moves.length;
 
-        if (timer === 0 || towers[2].length !== numDisks || totalMoves < optimalMoves) {
+        if (timer === 0 || totalMoves < optimalMoves) {
             setAccuracy(0);
             toast.error("Game incomplete or not solved optimally. Accuracy is 0%.");
         } else {
@@ -91,6 +98,34 @@ const TowerOfHanoi = () => {
         }
 
         setIsTimerRunning(false); // Stop the timer
+        sendPerformanceToBackend(totalTime, accuracy);
+    };
+
+    const sendPerformanceToBackend = async (reactionTime, accuracy) => {
+        const userDetails = {
+            userScore: accuracy,
+            reactionTime,
+            userCategory: 'problemSolving',
+            gameId: 9,
+            sex: user.sex,
+            age: user.age,
+        };
+
+        try {
+            const response = await axios.post(
+                `https://mind-c64g.onrender.com/api/cognitive-metrics`,
+                { userDetails },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            if (response.status === 200) {
+                setMetrics(response.data.metrics);
+                setUserZScore(response.data.userZScore);
+                dispatch(setUser(response.data.user,token));
+            }
+        } catch (error) {
+            console.error('Error sending performance data to backend:', error);
+        }
     };
 
     useEffect(() => {
@@ -112,9 +147,9 @@ const TowerOfHanoi = () => {
         return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
     };
 
-    return (
+    return (   
         <div className="flex flex-col items-center justify-center min-h-screen bg-yellow-100">
-            <div className="absolute top-16 right-4 bg-gray-700 text-white px-4 py-2 rounded shadow">
+            <div className="absolute top-20 right-4 bg-gray-700 text-white px-4 py-2 rounded shadow">
                 <p className="text-lg font-semibold">Time Left: {formatTime(timer)}</p>
             </div>
 
@@ -184,6 +219,15 @@ const TowerOfHanoi = () => {
                     <p className="text-lg font-semibold">Time Taken: {reactionTime.toFixed(2)} seconds</p>
                     <p className="text-lg font-semibold">Total Moves: {correctMoves}</p>
                     <p className="text-lg font-semibold">Accuracy: {accuracy}%</p>
+                </div>
+            )}
+
+            {metrics && (
+                <div className="mt-6 bg-gray-100 p-4 rounded shadow text-black">
+                    <h2 className="text-lg font-semibold mb-2">Backend Metrics</h2>
+                    <p>Mean Accuracy: {metrics.meanAccuracy}</p>
+                    <p>Standard Deviation (Accuracy): {metrics.avgZScoreAccuracy}</p>
+                    <p>User Z-Score: {userZScore}</p>
                 </div>
             )}
 

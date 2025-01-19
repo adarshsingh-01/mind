@@ -38,9 +38,10 @@ const MathPuzzle = () => {
     const [notAttempted, setNotAttempted] = useState(0);
     const [gameCompleted, setGameCompleted] = useState(false);
     const [accuracy, setAccuracy] = useState(0);
-
+    const [metrics, setMetrics] = useState(null);
+    const [userZScore, setUserZScore] = useState(null);
     const token = useSelector(state => state.user.token);
-    const userCategory = useSelector(state => state.user.category);
+
     const dispatch = useDispatch();
 
     // Generate 6 random questions
@@ -87,6 +88,7 @@ const MathPuzzle = () => {
         const accuracyPercentage = ((correctAnswers / 6) * 100).toFixed(2);
         setAccuracy(accuracyPercentage);
     };
+    const user = useSelector((state) => state.user.user);
 
     const startNewGame = () => {
         setAnswers([]);
@@ -113,7 +115,10 @@ const MathPuzzle = () => {
             correctAnswers,
             incorrectAnswers,
             notAttempted,
-            userCategory: userCategory,
+            userCategory: 'problemSolving',
+            gameId: 8,
+            sex: user.sex,
+            age: user.age,
         };
 
         try {
@@ -124,7 +129,9 @@ const MathPuzzle = () => {
             );
 
             if (response.status === 200) {
-                dispatch(setUser(response.data.updatedUser));
+                setMetrics(response.data.metrics);
+                setUserZScore(response.data.userZScore);
+                dispatch(setUser(response.data.user, token));
             }
         } catch (error) {
             console.error('Error sending performance data to backend:', error);
@@ -140,7 +147,7 @@ const MathPuzzle = () => {
                     <div className="mb-4 text-lg font-semibold">
                         <p>Question {currentIndex + 1}: {questions[currentIndex]?.question}</p>
                     </div>
-
+                    
                     <input
                         type="number"
                         placeholder="Your Answer"
@@ -165,6 +172,14 @@ const MathPuzzle = () => {
                     <button className="bg-green-600 text-white px-4 py-2 rounded shadow mt-4" onClick={startNewGame}>
                         Start New Game
                     </button>
+                    {metrics && (
+                        <div className="mt-6 bg-gray-100 p-4 rounded shadow text-black">
+                            <h2 className="text-lg font-semibold mb-2">Backend Metrics</h2>
+                            <p>Mean Accuracy: {metrics.meanAccuracy}</p>
+                            <p>Standard Deviation (Accuracy): {metrics.avgZScoreAccuracy}</p>
+                            <p>User Z-Score: {userZScore}</p>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

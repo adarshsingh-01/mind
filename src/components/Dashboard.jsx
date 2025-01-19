@@ -15,10 +15,9 @@ const Dashboard = () => {
     navigate("/");
   };
   const user = useSelector((state) => state.user.user);
-  const { sex, age, pscore, category } = user;
+  const { sex, age, Category } = user || {};
 
-  const gameIds = getGameRecommendations(sex, age, pscore, category);
-
+  const gameIds = getGameRecommendations(sex, age, Category);
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       <div className="flex">
@@ -40,6 +39,8 @@ const Dashboard = () => {
             <strong>Cognitive Goals:</strong> {user.cognitiveGoals}
           </p>
           <img src={radarChart} alt="Radar Chart" className="w-full mt-4" />
+          <button onClick={logout} className="mt-4 bg-red-500 text-white py-2 px-4 rounded">Logout</button>
+       
         </aside>
 
         <main className="flex-1 ml-8">
@@ -47,37 +48,28 @@ const Dashboard = () => {
           <p className="text-gray-600 mb-8">01 - 19 January, 2025</p>
 
           <div className="grid grid-cols-4 gap-4 mb-8">
-            <div className="bg-white p-4 rounded-lg shadow-md">
-              <h3 className="text-lg font-bold">Focus</h3>
-              <p className="text-2xl font-bold">7/10</p>
-              <p className="text-orange-500">Above Average</p>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow-md">
-              <h3 className="text-lg font-bold">Attention</h3>
-              <p className="text-2xl font-bold">7.5/10</p>
-              <p className="text-orange-500">Above Average</p>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow-md">
-              <h3 className="text-lg font-bold">Memory</h3>
-              <p className="text-2xl font-bold">9/10</p>
-              <p className="text-blue-500">Outstanding</p>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow-md">
-              <h3 className="text-lg font-bold">Reaction Time</h3>
-              <p className="text-2xl font-bold">4/10</p>
-              <p className="text-blue-500">Below Average</p>
-            </div>
+            {Category.map((cat, index) => (
+              <div key={index} className="bg-white p-4 rounded-lg shadow-md">
+                <h3 className="text-lg font-bold">{cat.type.charAt(0).toUpperCase() + cat.type.slice(1)}</h3>
+                <p className="text-2xl font-bold">{(cat.pscore / 10).toFixed(1)}/10</p>
+                <p className={`text-${cat.pscore > 7 ? 'blue' : 'orange'}-500`}>
+                  {cat.pscore > 7 ? 'Outstanding' : 'Average'}
+                </p>
+              </div>
+            ))}
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-md mb-8">
             <h3 className="text-lg font-bold mb-4">Suggested activities:</h3>
             <div className="flex space-x-4">
-              <span className="bg-orange-100 text-orange-600 text-sm font-semibold px-3 py-1 rounded-full">
-                Focus Activities
-              </span>
-              <span className="bg-blue-100 text-blue-600 text-sm font-semibold px-3 py-1 rounded-full">
-                Improve Reaction Time: Speed Reading
-              </span>
+              {Category.map((cat, index) => (
+                <span
+                  key={index}
+                  className={`bg-${cat.type === 'focus' ? 'orange' : 'blue'}-100 text-${cat.type === 'focus' ? 'orange' : 'blue'}-600 text-sm font-semibold px-3 py-1 rounded-full`}
+                >
+                  {cat.type.charAt(0).toUpperCase() + cat.type.slice(1)} Activities
+                </span>
+              ))}
               {gameIds.map((gameId, index) => (
                 <span
                   key={index}

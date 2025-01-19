@@ -17,6 +17,7 @@ import { useSelector } from "react-redux";
 import TowerOfHanoi from "./components/tests/PuzzleSolvingTests/TowerofHanoi";
 import FirstHome from "./components/FirstHome";
 import AllTest from "./components/AllTest";
+import Leaderboard from "./components/LeaderBoard";
 function App() {
   const user = useSelector((state) => state.user.user);
   const navigate = useNavigate();
@@ -26,10 +27,12 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/all" element={<AllTest />} />
+        <Route path="/all" element={!user ? <Login /> : <AllTest />} />
+        <Route path="/leaderboard" element={!user ? <Login /> : <Leaderboard user={user} />} />
         <Route path="/login" element={!user ? <Login /> : <Home />} />
         <Route path="/register" element={!user ? <Register /> : <Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={!user ? <Login /> : <Dashboard />} />
+        {/* <Route path="/dashboard" element={<Dashboard />} /> */}
         <Route
           path="/whack-a-mole"
           element={user ? <WhackAMole /> : <Login />}

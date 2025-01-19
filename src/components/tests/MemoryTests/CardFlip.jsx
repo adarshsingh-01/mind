@@ -48,7 +48,7 @@ export default function MemoryCardFlipGame() {
 
         setTimeout(() => {
             setShowCards(false);
-        }, 1000); // Show cards for 5 seconds
+        }, 5000); // Show cards for 5 seconds
     };
 
     const handleCardClick = (index) => {
@@ -102,10 +102,10 @@ export default function MemoryCardFlipGame() {
                 setUserZScore(response.data.userZScore);
 
                 // Dispatch action to update user info after performance submission
-                dispatch(setUser(response.data.user)); // Assuming the backend returns the updated user object
+                dispatch(setUser(response.data.user,token)); // Assuming the backend returns the updated user object
             }
         } catch (error) {
-            console.error("Error sending performance to backend:", error);
+            // console.error("Error sending performance to backend:", error);
         }
     };
 
